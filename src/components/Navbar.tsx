@@ -1,6 +1,7 @@
 import React from "react";
 import { CvData, CvThemeSettings, AppLanguage, CvTemplateId } from "../types";
 import { sampleCvLenise, sampleCvSpanish, sampleCvEnglish } from "../data/sampleCVs";
+import { downloadCvPdf } from "./pdf/CvPdfDocument";
 import {
   FileText,
   Printer,
@@ -9,9 +10,11 @@ import {
   Upload,
   Palette,
   RotateCcw,
-  Globe,
   Layout,
   User,
+  FolderOpen,
+  Database,
+  CloudUpload,
 } from "lucide-react";
 
 interface Props {
@@ -23,6 +26,10 @@ interface Props {
   setLanguage: (lang: AppLanguage) => void;
   onOpenAiDrawer: () => void;
   onOpenThemeModal: () => void;
+  onOpenCvManager: () => void;
+  authSlot?: React.ReactNode;
+  onSaveMaster?: () => void;
+  onSyncCloud?: () => void;
 }
 
 export const Navbar: React.FC<Props> = ({
@@ -34,6 +41,10 @@ export const Navbar: React.FC<Props> = ({
   setLanguage,
   onOpenAiDrawer,
   onOpenThemeModal,
+  onOpenCvManager,
+  authSlot,
+  onSaveMaster,
+  onSyncCloud,
 }) => {
   const templates: { id: CvTemplateId; name: string }[] = [
     { id: "clasico-v1", name: "Clásico (2 Col)" },
@@ -220,8 +231,14 @@ export const Navbar: React.FC<Props> = ({
     printWin.document.close();
   };
 
-  const handlePrint = () => {
-    handleOpenPrintWindow();
+  const handleExportPdf = async () => {
+    try {
+      await downloadCvPdf(cvData, theme);
+    } catch (err) {
+      console.error(err);
+      // Fallback legacy print window
+      handleOpenPrintWindow();
+    }
   };
 
   const handleExportJson = () => {
@@ -304,11 +321,13 @@ export const Navbar: React.FC<Props> = ({
           </div>
           <div>
             <h1 className="text-base font-extrabold tracking-tight leading-none text-white">
-              Generador de CV <span className="text-blue-400">Pro</span>
+              Templeo<span className="text-blue-400">CV</span>
             </h1>
-            <p className="text-[10px] text-slate-400">Lenise Nocetti & Templates Adaptados</p>
+            <p className="text-[10px] text-slate-400">Módulo 1 · Master + instancias</p>
           </div>
         </div>
+
+        {authSlot && <div className="order-last sm:order-none w-full sm:w-auto">{authSlot}</div>}
 
         {/* Center Controls */}
         <div className="flex flex-wrap items-center gap-2">
@@ -375,24 +394,49 @@ export const Navbar: React.FC<Props> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
-          {/* AI Drawer Trigger */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={onOpenCvManager}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer"
+          >
+            <FolderOpen className="w-3.5 h-3.5 text-sky-400" /> Mis CVs
+          </button>
+
+          {onSaveMaster && (
+            <button
+              onClick={onSaveMaster}
+              title="Copiar instancia activa al Master Profile"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer"
+            >
+              <Database className="w-3.5 h-3.5 text-amber-400" /> → Master
+            </button>
+          )}
+
+          {onSyncCloud && (
+            <button
+              onClick={onSyncCloud}
+              title="Subir instancia a Firestore"
+              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 cursor-pointer"
+            >
+              <CloudUpload className="w-4 h-4" />
+            </button>
+          )}
+
           <button
             onClick={onOpenAiDrawer}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-            Escanear ATS / IA
+            ATS / IA
           </button>
 
-          {/* Primary Print / Download PDF A4 Button */}
           <button
-            onClick={handleOpenPrintWindow}
-            title="Abrir vista de impresión A4 y guardar como PDF"
+            onClick={handleExportPdf}
+            title="Exportar PDF ATS (react-pdf). Fallback: impresión HTML."
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer transition-all"
           >
             <Printer className="w-4 h-4" />
-            Imprimir / Guardar PDF
+            Exportar PDF
           </button>
 
           {/* Export / Import JSON */}

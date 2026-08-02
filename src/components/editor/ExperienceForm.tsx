@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ExperienceItem } from "../../types";
 import { Plus, Trash2, Sparkles, Loader2, ChevronDown, ChevronUp, Check, Layers } from "lucide-react";
+import { api } from "../../lib/api";
 
 interface Props {
   items: ExperienceItem[];
@@ -74,19 +75,12 @@ export const ExperienceForm: React.FC<Props> = ({ items, onChange, language }) =
     setBulletSuggestions(null);
 
     try {
-      const res = await fetch("/api/ai/enhance-bullet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          bullet: originalBullet,
-          jobTitle: exp.title,
-          company: exp.company,
-          language,
-        }),
+      const data = await api.enhanceBullet({
+        bullet: originalBullet,
+        jobTitle: exp.title,
+        company: exp.company,
+        language,
       });
-
-      if (!res.ok) throw new Error("Error procesando viñeta con IA");
-      const data = await res.json();
       if (data.suggestions) {
         setBulletSuggestions(data.suggestions);
       }

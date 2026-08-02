@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Sparkles, Loader2, Check, RefreshCw } from "lucide-react";
+import { api } from "../../lib/api";
 
 interface Props {
   summary: string;
@@ -18,23 +19,12 @@ export const SummaryForm: React.FC<Props> = ({ summary, jobTitle, skills, onChan
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/ai/enhance-summary", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          jobTitle,
-          summary,
-          skills,
-          language,
-        }),
+      const data = await api.enhanceSummary({
+        jobTitle,
+        summary,
+        skills,
+        language,
       });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Error al generar resumen");
-      }
-
-      const data = await res.json();
       if (data.options && data.options.length > 0) {
         setSuggestions(data.options);
       } else {

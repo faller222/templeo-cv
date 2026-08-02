@@ -130,3 +130,70 @@ export interface AtsResult {
 }
 
 export type AppLanguage = "es" | "en";
+
+/** Fuente de verdad del usuario — máxima transparencia para la IA */
+export type MasterProfile = CvData;
+
+export interface UserEconomy {
+  creditosIa: number;
+  ultimaRecarga: number | null;
+}
+
+export interface UserDoc {
+  profile: MasterProfile;
+  economy: UserEconomy;
+  createdAt: number;
+  updatedAt: number;
+}
+
+/** Proyección de CV para un puesto/template concreto */
+export interface CvInstance {
+  id: string;
+  userId: string;
+  title: string;
+  sourceJobHint?: string;
+  templateId: CvTemplateId;
+  data: CvData;
+  theme: CvThemeSettings;
+  clonedFrom?: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export const DEFAULT_ECONOMY: UserEconomy = {
+  creditosIa: 5,
+  ultimaRecarga: null,
+};
+
+export const emptyCvData = (): CvData => ({
+  personalInfo: {
+    fullName: "",
+    title: "",
+    email: "",
+    phone: "",
+    location: "",
+    website: "",
+    linkedin: "",
+    github: "",
+    photoUrl: "",
+    showPhoto: false,
+  },
+  summary: "",
+  experience: [],
+  education: [],
+  skillCategories: [],
+  projects: [],
+  certifications: [],
+  references: [],
+  customSections: [],
+  sectionOrder: [
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+    "references",
+    "custom",
+  ],
+});

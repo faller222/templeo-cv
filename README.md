@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# TempleoCV
 
-# Run and deploy your AI Studio app
+Módulo 1 de Templeo: generador y gestor de CVs con IA (Gemini), Firebase Auth/Firestore y exportación PDF.
 
-This contains everything you need to run your app locally.
+Documentación completa: [`.doc/00-INDICE.md`](.doc/00-INDICE.md)
 
-View your app in AI Studio: https://ai.studio/apps/dc219dfd-c90c-4782-a0ad-008e44851496
+## Setup local
 
-## Run Locally
+1. `npm install`
+2. Copiá `.env.example` → `.env` y completá `GEMINI_API_KEY` + `VITE_FIREBASE_*`
+3. `npm run dev` — Vite + API bridge en http://localhost:3000
 
-**Prerequisites:**  Node.js
+## Scripts
 
+| Comando | Qué hace |
+|---------|----------|
+| `npm run dev` | Dev server (Express + Vite) |
+| `npm run build` | Build frontend + server |
+| `npm run lint` | `tsc --noEmit` |
+| `npx firebase emulators:start` | Emuladores Auth/Firestore/Functions |
+| `npx firebase deploy` | Deploy (requiere login) |
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Auth
+
+Google + LinkedIn (OIDC). Ajustá `VITE_FIREBASE_LINKEDIN_PROVIDER_ID` al providerId exacto de la consola Firebase.

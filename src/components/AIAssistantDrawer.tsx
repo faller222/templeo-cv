@@ -11,6 +11,7 @@ import {
   FileCheck,
   Zap,
 } from "lucide-react";
+import { api } from "../lib/api";
 
 interface Props {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface Props {
   cvData: CvData;
   setCvData: (data: CvData) => void;
   language: AppLanguage;
+  onCreditsChange?: (n: number) => void;
 }
 
 export const AIAssistantDrawer: React.FC<Props> = ({
@@ -26,6 +28,7 @@ export const AIAssistantDrawer: React.FC<Props> = ({
   cvData,
   setCvData,
   language,
+  onCreditsChange,
 }) => {
   const [targetJob, setTargetJob] = useState("");
   const [loadingAts, setLoadingAts] = useState(false);
@@ -40,19 +43,15 @@ export const AIAssistantDrawer: React.FC<Props> = ({
     setAtsResult(null);
 
     try {
-      const res = await fetch("/api/ai/ats-check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          cvData,
-          targetJobDescription: targetJob,
-          language,
-        }),
+      const data = await api.atsCheck({
+        cvData,
+        targetJobDescription: targetJob,
+        language,
       });
-
-      if (!res.ok) throw new Error("Error en escaneo ATS");
-      const data = await res.json();
       setAtsResult(data);
+      if (typeof (data as any).creditosIa === "number") {
+        onCreditsChange?.((data as any).creditosIa);
+      }
     } catch (err: any) {
       alert(err.message || "Error realizando escaneo ATS");
     } finally {
@@ -68,37 +67,29 @@ export const AIAssistantDrawer: React.FC<Props> = ({
     setLoadingTranslate(true);
 
     try {
-      // Translate Summary
       let newSummary = cvData.summary;
       if (cvData.summary) {
-        const sumRes = await fetch("/api/ai/translate", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: cvData.summary, targetLang }),
+        const sumData = await api.translate({
+          text: cvData.summary,
+          targetLang,
         });
-        const sumData = await sumRes.json();
         newSummary = sumData.translatedText || cvData.summary;
+        if (typeof (sumData as any).creditosIa === "number") {
+          onCreditsChange?.((sumData as any).creditosIa);
+        }
       }
 
-      // Translate Experience bullets & titles
       const newExp = await Promise.all(
         cvData.experience.map(async (exp) => {
-          const titleRes = await fetch("/api/ai/translate", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: exp.title, targetLang }),
+          const titleData = await api.translate({
+            text: exp.title,
+            targetLang,
           });
-          const titleData = await titleRes.json();
 
           const translatedBullets = await Promise.all(
             exp.bullets.map(async (b) => {
               if (!b) return b;
-              const bRes = await fetch("/api/ai/translate", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ text: b, targetLang }),
-              });
-              const bData = await bRes.json();
+              const bData = await api.translate({ text: b, targetLang });
               return bData.translatedText || b;
             })
           );
