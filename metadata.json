@@ -1,0 +1,6 @@
+{
+  "name": "Generador de CV Pro",
+  "description": "Crea currículums profesionales con vista previa en tiempo real, múltiples plantillas, asistencia con IA (Gemini) para redacción y análisis ATS, exportación a PDF y guardado.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
