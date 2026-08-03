@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import type { CvInstance } from "../types";
-import { Copy, FilePlus, Sparkles, X } from "lucide-react";
+import { Copy, FilePlus, Pencil, Sparkles, X } from "lucide-react";
 
 interface Props {
   isOpen: boolean;
@@ -8,6 +8,7 @@ interface Props {
   instances: CvInstance[];
   activeId: string | null;
   onSelect: (id: string) => void;
+  onRename: (id: string, title: string) => void;
   onClone: () => void;
   onCreateBlank: (title: string) => void;
   onGenerateAi: (jobHint: string) => Promise<void>;
@@ -19,6 +20,7 @@ export const CvManagerModal: React.FC<Props> = ({
   instances,
   activeId,
   onSelect,
+  onRename,
   onClone,
   onCreateBlank,
   onGenerateAi,
@@ -27,15 +29,33 @@ export const CvManagerModal: React.FC<Props> = ({
   const [jobHint, setJobHint] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draftTitle, setDraftTitle] = useState("");
 
   if (!isOpen) return null;
+
+  const startRename = (cv: CvInstance) => {
+    setEditingId(cv.id);
+    setDraftTitle(cv.title);
+  };
+
+  const commitRename = () => {
+    if (!editingId) return;
+    onRename(editingId, draftTitle);
+    setEditingId(null);
+    setDraftTitle("");
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg border border-slate-200 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-          <h3 className="font-extrabold text-sm">Mis CVs (instancias)</h3>
-          <button type="button" onClick={onClose} className="p-1 hover:bg-slate-100 rounded cursor-pointer">
+          <h3 className="font-extrabold text-sm">Mis CVs</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-1 hover:bg-slate-100 rounded cursor-pointer"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -44,25 +64,60 @@ export const CvManagerModal: React.FC<Props> = ({
           <ul className="space-y-1">
             {instances.map((cv) => (
               <li key={cv.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onSelect(cv.id);
-                    onClose();
-                  }}
-                  className={`w-full text-left px-3 py-2 rounded-lg text-sm border cursor-pointer ${
-                    cv.id === activeId
-                      ? "border-blue-500 bg-blue-50 font-bold"
-                      : "border-slate-200 hover:bg-slate-50"
-                  }`}
-                >
-                  <div>{cv.title}</div>
-                  {cv.sourceJobHint && (
-                    <div className="text-[10px] text-slate-500 truncate">
-                      {cv.sourceJobHint}
-                    </div>
-                  )}
-                </button>
+                {editingId === cv.id ? (
+                  <div className="flex items-center gap-2 px-2 py-1.5 rounded-lg border border-blue-400 bg-blue-50">
+                    <input
+                      autoFocus
+                      value={draftTitle}
+                      onChange={(e) => setDraftTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") commitRename();
+                        if (e.key === "Escape") {
+                          setEditingId(null);
+                          setDraftTitle("");
+                        }
+                      }}
+                      onBlur={commitRename}
+                      className="flex-1 text-sm font-bold bg-white border border-slate-200 rounded-md px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+                      aria-label="Renombrar CV"
+                    />
+                  </div>
+                ) : (
+                  <div
+                    className={`flex items-center gap-1 rounded-lg border ${
+                      cv.id === activeId
+                        ? "border-blue-500 bg-blue-50"
+                        : "border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onSelect(cv.id);
+                        onClose();
+                      }}
+                      className={`flex-1 min-w-0 text-left px-3 py-2 text-sm cursor-pointer ${
+                        cv.id === activeId ? "font-bold" : ""
+                      }`}
+                    >
+                      <div className="truncate">{cv.title}</div>
+                      {cv.sourceJobHint && (
+                        <div className="text-[10px] text-slate-500 truncate">
+                          {cv.sourceJobHint}
+                        </div>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => startRename(cv)}
+                      title="Renombrar"
+                      aria-label={`Renombrar ${cv.title}`}
+                      className="shrink-0 p-2 mr-1 text-slate-500 hover:text-slate-800 hover:bg-white/80 rounded-md cursor-pointer"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
               </li>
             ))}
             {!instances.length && (
@@ -113,8 +168,10 @@ export const CvManagerModal: React.FC<Props> = ({
                 try {
                   await onGenerateAi(jobHint.trim());
                   onClose();
-                } catch (e: any) {
-                  setError(e?.message || "Error generando CV");
+                } catch (e: unknown) {
+                  const msg =
+                    e instanceof Error ? e.message : "Error generando CV";
+                  setError(msg);
                 } finally {
                   setBusy(false);
                 }

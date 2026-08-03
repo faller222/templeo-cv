@@ -71,6 +71,7 @@ export async function saveCvInstance(
   uid: string,
   instance: Omit<CvInstance, "id" | "userId"> & { id?: string }
 ): Promise<string> {
+  const updatedAt = instance.updatedAt || Date.now();
   const payload = {
     userId: uid,
     title: instance.title,
@@ -80,7 +81,7 @@ export async function saveCvInstance(
     theme: instance.theme,
     clonedFrom: instance.clonedFrom || null,
     createdAt: instance.createdAt,
-    updatedAt: Date.now(),
+    updatedAt,
   };
   if (instance.id && !instance.id.startsWith("local-")) {
     await setDoc(doc(getDb(), "cv_instances", instance.id), payload, {
@@ -90,6 +91,42 @@ export async function saveCvInstance(
   }
   const ref = await addDoc(collection(getDb(), "cv_instances"), payload);
   return ref.id;
+}
+
+/**
+ * Fusiona local + remoto: gana el más reciente por updatedAt;
+ * instancias solo-locales se suben. Evita que un refresh tire ediciones no syncadas.
+ */
+export async function reconcileCvInstances(
+  uid: string,
+  local: CvInstance[],
+  remote: CvInstance[]
+): Promise<CvInstance[]> {
+  const merged: CvInstance[] = [];
+  const seen = new Set<string>();
+
+  for (const r of remote) {
+    const l = local.find((x) => x.id === r.id);
+    if (l && (l.updatedAt || 0) > (r.updatedAt || 0)) {
+      await saveCvInstance(uid, l);
+      merged.push({ ...l, userId: uid });
+    } else {
+      merged.push(r);
+    }
+    seen.add(r.id);
+  }
+
+  for (const l of local) {
+    if (seen.has(l.id)) continue;
+    // No subir leftovers de guest (evita contaminar cuentas con el CV de ejemplo)
+    if (l.userId === "local" || l.id.startsWith("local-")) continue;
+    const cloudId = await saveCvInstance(uid, l);
+    merged.push({ ...l, id: cloudId, userId: uid });
+    seen.add(cloudId);
+  }
+
+  merged.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
+  return merged;
 }
 
 export type { UserEconomy, CvThemeSettings };

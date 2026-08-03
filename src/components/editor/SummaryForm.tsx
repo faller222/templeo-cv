@@ -84,7 +84,7 @@ export const SummaryForm: React.FC<Props> = ({ summary, jobTitle, skills, onChan
           <div className="flex items-center justify-between">
             <h4 className="font-bold text-indigo-900 text-xs flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-indigo-600" />
-              Sugerencias de la IA (Gemini):
+              Recomendaciones inteligentes:
             </h4>
             <button
               onClick={() => setSuggestions(null)}

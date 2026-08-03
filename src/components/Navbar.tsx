@@ -1,6 +1,5 @@
 import React from "react";
 import { CvData, CvThemeSettings, AppLanguage, CvTemplateId } from "../types";
-import { downloadCvPdf } from "./pdf/CvPdfDocument";
 import type { AuthModalReason } from "./AuthModal";
 import {
   FileText,
@@ -231,14 +230,10 @@ export const Navbar: React.FC<Props> = ({
     printWin.document.close();
   };
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = () => {
     if (!gate("export")) return;
-    try {
-      await downloadCvPdf(cvData, theme);
-    } catch (err) {
-      console.error(err);
-      handleOpenPrintWindow();
-    }
+    // WYSIWYG: imprime el preview real (respeta plantilla). El PDF genérico de react-pdf no.
+    handleOpenPrintWindow();
   };
 
   const handleExportJson = () => {
@@ -372,7 +367,7 @@ export const Navbar: React.FC<Props> = ({
 
           <button
             onClick={handleExportPdf}
-            title="Exportar PDF ATS (react-pdf). Fallback: impresión HTML."
+            title="Exportar PDF con la plantilla actual (vista previa)"
             className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer transition-all"
           >
             <Printer className="w-4 h-4" />

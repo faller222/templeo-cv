@@ -35,12 +35,14 @@ import { isFirebaseConfigured } from "./lib/firebase";
 import {
   ensureUserDoc,
   listCvInstances,
+  reconcileCvInstances,
   saveCvInstance,
   saveMasterProfile,
 } from "./lib/firestoreUser";
 import { Edit3, Lock } from "lucide-react";
 
 const STORAGE_KEY = "templeo_cv_v2";
+const AUTOSAVE_MS = 700;
 
 type LocalState = {
   master: MasterProfile;
@@ -140,6 +142,8 @@ export default function App() {
   const activeIdRef = useRef(activeId);
   const themeRef = useRef(theme);
   const isGuestRef = useRef(isGuest);
+  const syncedUidRef = useRef<string | null>(null);
+  const skipAutosaveRef = useRef(false);
 
   useEffect(() => {
     masterRef.current = master;
@@ -214,27 +218,61 @@ export default function App() {
     );
   }, [master, instances, activeId, theme, isGuest, language, locked]);
 
-  // Sync theme onto active instance (solo autenticado)
+  // Sync theme onto active instance without bumping updatedAt if nothing changed
   useEffect(() => {
     if (!user) return;
     setInstances((prev) =>
-      prev.map((inst) =>
-        inst.id === activeId
-          ? {
-              ...inst,
-              theme,
-              templateId: theme.templateId,
-              updatedAt: Date.now(),
-            }
-          : inst
-      )
+      prev.map((inst) => {
+        if (inst.id !== activeId) return inst;
+        const sameTemplate = inst.templateId === theme.templateId;
+        const sameTheme =
+          JSON.stringify(inst.theme) === JSON.stringify(theme);
+        if (sameTemplate && sameTheme) return inst;
+        return {
+          ...inst,
+          theme,
+          templateId: theme.templateId,
+          updatedAt: Date.now(),
+        };
+      })
     );
   }, [theme, activeId, user]);
+
+  // Autosave a Firestore (debounce) cuando hay sesión
+  useEffect(() => {
+    if (!user || !isFirebaseConfigured || locked) return;
+    if (skipAutosaveRef.current) return;
+
+    const timer = window.setTimeout(async () => {
+      const snapshot = instancesRef.current;
+      let idRemap: { from: string; to: string } | null = null;
+
+      for (const inst of snapshot) {
+        try {
+          const id = await saveCvInstance(user.uid, inst);
+          if (id !== inst.id) idRemap = { from: inst.id, to: id };
+        } catch (e) {
+          console.error("Autosave failed", e);
+        }
+      }
+
+      if (idRemap) {
+        const { from, to } = idRemap;
+        setInstances((prev) =>
+          prev.map((i) => (i.id === from ? { ...i, id: to, userId: user.uid } : i))
+        );
+        if (activeIdRef.current === from) setActiveId(to);
+      }
+    }, AUTOSAVE_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [instances, user, locked]);
 
   const onUserChange = useCallback(async (u: User | null) => {
     setUser(u);
     if (!u) {
       setIsGuest(true);
+      syncedUidRef.current = null;
       return;
     }
     if (!isFirebaseConfigured) {
@@ -242,7 +280,14 @@ export default function App() {
       return;
     }
 
+    // Evita que un re-subscribe de Auth pise ediciones locales a mitad de sesión
+    if (syncedUidRef.current === u.uid) {
+      setIsGuest(false);
+      return;
+    }
+
     try {
+      skipAutosaveRef.current = true;
       const localInstances = instancesRef.current;
       const localActiveId = activeIdRef.current;
       const localActive =
@@ -262,13 +307,21 @@ export default function App() {
 
       if (remote.length) {
         const doc = await ensureUserDoc(u.uid, remote[0].data);
-        setMaster(doc.profile || remote[0].data);
+        const merged = await reconcileCvInstances(
+          u.uid,
+          localInstances,
+          remote
+        );
+        setMaster(doc.profile || merged[0]?.data || remote[0].data);
         setCredits(doc.economy?.creditosIa ?? DEFAULT_ECONOMY.creditosIa);
-        setInstances(remote);
-        setActiveId(remote[0].id);
-        if (remote[0].theme) setTheme(remote[0].theme);
+        setInstances(merged);
+        const keepActive =
+          merged.find((m) => m.id === localActiveId) || merged[0];
+        setActiveId(keepActive.id);
+        if (keepActive.theme) setTheme(keepActive.theme);
         setIsGuest(false);
         setAuthModalOpen(false);
+        syncedUidRef.current = u.uid;
         return;
       }
 
@@ -286,7 +339,11 @@ export default function App() {
       });
 
       const cloudId = await saveCvInstance(u.uid, claimedInstance);
-      const saved: CvInstance = { ...claimedInstance, id: cloudId, userId: u.uid };
+      const saved: CvInstance = {
+        ...claimedInstance,
+        id: cloudId,
+        userId: u.uid,
+      };
       await saveMasterProfile(u.uid, claimedData);
 
       setMaster(claimedData);
@@ -295,8 +352,14 @@ export default function App() {
       setTheme(saved.theme);
       setIsGuest(false);
       setAuthModalOpen(false);
+      syncedUidRef.current = u.uid;
     } catch (e) {
       console.error("Firestore sync / claim failed", e);
+    } finally {
+      // Soltar el skip en el próximo tick para no autosavear el set masivo
+      window.setTimeout(() => {
+        skipAutosaveRef.current = false;
+      }, AUTOSAVE_MS + 50);
     }
   }, []);
 
@@ -306,7 +369,9 @@ export default function App() {
       const id = await saveCvInstance(user.uid, active);
       if (id !== active.id) {
         setInstances((prev) =>
-          prev.map((i) => (i.id === active.id ? { ...i, id } : i))
+          prev.map((i) =>
+            i.id === active.id ? { ...i, id, userId: user.uid } : i
+          )
         );
         setActiveId(id);
       }
@@ -324,35 +389,53 @@ export default function App() {
     }
   };
 
-  const handleClone = () => {
+  const handleClone = async () => {
     if (!requireAuth("manage")) return;
-    if (!active) return;
+    if (!active || !user) return;
     const cloned = createLocalCvInstance({
-      userId: user!.uid,
+      userId: user.uid,
       title: `${active.title} (copia)`,
       data: cloneCvData(active.data),
       theme: active.theme || theme,
       sourceJobHint: active.sourceJobHint,
       clonedFrom: active.id,
     });
-    setInstances((prev) => [...prev, cloned]);
-    setActiveId(cloned.id);
+    try {
+      const id = await saveCvInstance(user.uid, cloned);
+      const saved = { ...cloned, id, userId: user.uid };
+      setInstances((prev) => [...prev, saved]);
+      setActiveId(id);
+    } catch (e) {
+      console.error(e);
+      setInstances((prev) => [...prev, cloned]);
+      setActiveId(cloned.id);
+    }
   };
 
-  const handleCreateBlank = (title: string) => {
+  const handleCreateBlank = async (title: string) => {
     if (!requireAuth("manage")) return;
+    if (!user) return;
     const inst = createLocalCvInstance({
-      userId: user!.uid,
+      userId: user.uid,
       title,
       data: masterToInstanceData(master),
       theme,
     });
-    setInstances((prev) => [...prev, inst]);
-    setActiveId(inst.id);
+    try {
+      const id = await saveCvInstance(user.uid, inst);
+      const saved = { ...inst, id, userId: user.uid };
+      setInstances((prev) => [...prev, saved]);
+      setActiveId(id);
+    } catch (e) {
+      console.error(e);
+      setInstances((prev) => [...prev, inst]);
+      setActiveId(inst.id);
+    }
   };
 
   const handleGenerateAi = async (jobHint: string) => {
     if (!requireAuth("ai")) return;
+    if (!user) return;
     const res = await api.generateCv({
       jobHint,
       language,
@@ -360,15 +443,16 @@ export default function App() {
     });
     if (typeof res.creditosIa === "number") setCredits(res.creditosIa);
     const inst = createLocalCvInstance({
-      userId: user!.uid,
+      userId: user.uid,
       title: res.title || "CV IA",
       data: res.data,
       theme,
       sourceJobHint: jobHint,
     });
-    setInstances((prev) => [...prev, inst]);
-    setActiveId(inst.id);
-    if (user) await saveCvInstance(user.uid, inst);
+    const id = await saveCvInstance(user.uid, inst);
+    const saved = { ...inst, id, userId: user.uid };
+    setInstances((prev) => [...prev, saved]);
+    setActiveId(id);
   };
 
   const openThemeModal = () => {
@@ -386,20 +470,70 @@ export default function App() {
     setIsCvManagerOpen(true);
   };
 
+  const renameCv = (id: string, title: string) => {
+    if (!requireAuth("edit")) return;
+    const trimmed = title.trim() || "CV";
+    setInstances((prev) =>
+      prev.map((inst) =>
+        inst.id === id
+          ? { ...inst, title: trimmed, updatedAt: Date.now() }
+          : inst
+      )
+    );
+  };
+
   const editorPanel = (
     <div className="space-y-4">
       <div className="flex items-center justify-between px-1 gap-2">
-        <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2 truncate">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
           <Edit3 className="w-4 h-4 text-blue-600 shrink-0" />
-          {active?.title || "CV"}
-        </h2>
-        {locked ? (
+          <input
+            type="text"
+            value={active?.title || ""}
+            disabled={locked}
+            onChange={(e) => {
+              if (!active || locked) return;
+              if (!requireAuth("edit")) return;
+              setInstances((prev) =>
+                prev.map((inst) =>
+                  inst.id === active.id
+                    ? {
+                        ...inst,
+                        title: e.target.value,
+                        updatedAt: Date.now(),
+                      }
+                    : inst
+                )
+              );
+            }}
+            onBlur={() => {
+              if (!active) return;
+              const trimmed = active.title.trim() || "CV";
+              const updated = {
+                ...active,
+                title: trimmed,
+                updatedAt: Date.now(),
+              };
+              setInstances((prev) =>
+                prev.map((inst) =>
+                  inst.id === active.id ? updated : inst
+                )
+              );
+              if (user) {
+                void saveCvInstance(user.uid, updated).catch(console.error);
+              }
+            }}
+            onClick={() => {
+              if (locked) requireAuth("edit");
+            }}
+            placeholder="Nombre del CV"
+            aria-label="Nombre del CV"
+            className="min-w-0 flex-1 text-sm font-extrabold text-slate-900 bg-transparent border border-transparent hover:border-slate-200 focus:border-blue-400 focus:bg-white rounded-md px-1.5 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500/30 disabled:opacity-70"
+          />
+        </div>
+        {locked && (
           <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md shrink-0">
             <Lock className="w-3 h-3" /> Ejemplo · solo lectura
-          </span>
-        ) : (
-          <span className="text-[11px] text-slate-500 shrink-0">
-            Instancia · Master aparte
           </span>
         )}
       </div>
@@ -488,6 +622,7 @@ export default function App() {
           const inst = instances.find((i) => i.id === id);
           if (inst?.theme) setTheme(inst.theme);
         }}
+        onRename={renameCv}
         onClone={handleClone}
         onCreateBlank={handleCreateBlank}
         onGenerateAi={handleGenerateAi}
