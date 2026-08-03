@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+html,
+body,
+#root {
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
 @layer utilities {
   /* Print Optimization Styles for Exact A4 Page Matching */
   @media print {
@@ -30,15 +38,20 @@
       display: none !important;
     }
 
-    /* Hide left editor panel in main grid when printing */
-    #root main > div:first-child {
+    /* Hide editor panel + panel handles when printing */
+    [data-panel="editor"],
+    main button[aria-label*="formulario"],
+    main button[aria-label*="vista previa"],
+    main button[aria-label*="Vista previa"],
+    main button[aria-label*="Editar"],
+    main button[aria-label*="Volver"] {
       display: none !important;
     }
 
     /* Reset app layout containers so only preview shows */
     #root,
     main,
-    .lg\:col-span-7,
+    [data-panel="preview"],
     .overflow-x-auto {
       margin: 0 !important;
       padding: 0 !important;
@@ -46,6 +59,9 @@
       max-width: 210mm !important;
       display: block !important;
       overflow: visible !important;
+      height: auto !important;
+      opacity: 1 !important;
+      transform: none !important;
     }
 
     /* CV Preview Container exact A4 sizing */

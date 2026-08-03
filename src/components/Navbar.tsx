@@ -1,11 +1,5 @@
 import React from "react";
 import { CvData, CvThemeSettings, AppLanguage, CvTemplateId } from "../types";
-import {
-  sampleCvSpanish,
-  sampleCvEnglish,
-  sampleCvCamila,
-  sampleCvDiego,
-} from "../data/sampleCVs";
 import { downloadCvPdf } from "./pdf/CvPdfDocument";
 import type { AuthModalReason } from "./AuthModal";
 import {
@@ -15,9 +9,7 @@ import {
   Download,
   Upload,
   Palette,
-  RotateCcw,
   Layout,
-  User,
   FolderOpen,
   Database,
   CloudUpload,
@@ -44,8 +36,6 @@ export const Navbar: React.FC<Props> = ({
   setCvData,
   theme,
   setTheme,
-  language,
-  setLanguage,
   onOpenAiDrawer,
   onOpenThemeModal,
   onOpenCvManager,
@@ -288,67 +278,8 @@ export const Navbar: React.FC<Props> = ({
     }
   };
 
-  const handleLoadSample = (
-    candidate: "mateo" | "sarah" | "camila" | "diego"
-  ) => {
-    if (!gate("edit")) return;
-    if (candidate === "mateo") {
-      setCvData(sampleCvSpanish);
-      setLanguage("es");
-      setTheme((t) => ({ ...t, templateId: "modern" }));
-    } else if (candidate === "sarah") {
-      setCvData(sampleCvEnglish);
-      setLanguage("en");
-      setTheme((t) => ({ ...t, templateId: "executive" }));
-    } else if (candidate === "camila") {
-      setCvData(sampleCvCamila);
-      setLanguage("es");
-      setTheme((t) => ({ ...t, templateId: "elegant" }));
-    } else {
-      setCvData(sampleCvDiego);
-      setLanguage("es");
-      setTheme((t) => ({ ...t, templateId: "creative" }));
-    }
-  };
-
-  const handleResetBlank = () => {
-    if (!gate("edit")) return;
-    if (confirm("¿Seguro que deseas reiniciar y crear un CV en blanco?")) {
-      setCvData({
-        personalInfo: {
-          fullName: "",
-          title: "",
-          email: "",
-          phone: "",
-          location: "",
-          website: "",
-          linkedin: "",
-          github: "",
-          photoUrl: "",
-          showPhoto: false,
-        },
-        summary: "",
-        experience: [],
-        education: [],
-        skillCategories: [
-          { id: "cat-1", categoryName: "Habilidades", skills: [] },
-        ],
-        projects: [],
-        certifications: [],
-        customSections: [],
-        sectionOrder: [
-          "personal",
-          "summary",
-          "experience",
-          "education",
-          "skills",
-        ],
-      });
-    }
-  };
-
   return (
-    <header className="sticky top-0 z-30 bg-slate-900 text-white border-b border-slate-800 shadow-md print:hidden">
+    <header className="shrink-0 z-30 bg-slate-900 text-white border-b border-slate-800 shadow-md print:hidden">
       <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
         {/* Brand */}
         <div className="flex items-center gap-2">
@@ -401,48 +332,6 @@ export const Navbar: React.FC<Props> = ({
           >
             <Palette className="w-3.5 h-3.5 text-blue-400" /> Estilos & Colores
           </button>
-
-          {/* Sample CV Dropdown */}
-          <div className="relative group">
-            <button className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer">
-              <User className="w-3.5 h-3.5 text-emerald-400" />
-              Cargar Candidato ▾
-            </button>
-
-            <div className="absolute right-0 top-full mt-1 w-64 bg-slate-800 border border-slate-700 rounded-xl shadow-xl hidden group-hover:block p-1.5 z-50">
-              <button
-                onClick={() => handleLoadSample("mateo")}
-                className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
-              >
-                Mateo Fernández (Dev Senior)
-              </button>
-              <button
-                onClick={() => handleLoadSample("sarah")}
-                className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
-              >
-                Sarah Jenkins (Product Manager)
-              </button>
-              <button
-                onClick={() => handleLoadSample("camila")}
-                className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
-              >
-                Camila Rojas (Marketing)
-              </button>
-              <button
-                onClick={() => handleLoadSample("diego")}
-                className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
-              >
-                Diego Morales (UX/UI)
-              </button>
-              <div className="border-t border-slate-700 my-1" />
-              <button
-                onClick={handleResetBlank}
-                className="w-full text-left px-3 py-2 text-xs text-rose-400 hover:bg-rose-900/30 rounded-lg flex items-center gap-1.5"
-              >
-                <RotateCcw className="w-3.5 h-3.5" /> CV en Blanco
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Action Buttons */}
