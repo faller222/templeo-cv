@@ -7,6 +7,7 @@ import {
   signInWithLinkedIn,
   watchAuth,
 } from "../lib/firebase";
+import { isAuthCancelled } from "../lib/authErrors";
 import { api } from "../lib/api";
 import { LogIn, LogOut, Coins } from "lucide-react";
 
@@ -37,8 +38,12 @@ export const AuthBar: React.FC<Props> = ({
     setError(null);
     try {
       await fn();
-    } catch (e: any) {
-      setError(e?.message || "Error de autenticación");
+    } catch (e: unknown) {
+      if (!isAuthCancelled(e)) {
+        const msg =
+          e instanceof Error ? e.message : "Error de autenticación";
+        setError(msg);
+      }
     } finally {
       setBusy(false);
     }

@@ -5,6 +5,7 @@ import {
   signInWithGoogle,
   signInWithLinkedIn,
 } from "../lib/firebase";
+import { isAuthCancelled } from "../lib/authErrors";
 
 export type AuthModalReason = "edit" | "export" | "theme" | "ai" | "manage" | "generic";
 
@@ -70,12 +71,14 @@ export const AuthModal: React.FC<Props> = ({
       await fn();
       // El modal lo cierra App tras el claim / sync en onUserChange.
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Error de autenticación";
-      setError(msg);
+      if (!isAuthCancelled(e)) {
+        const msg =
+          e instanceof Error ? e.message : "Error de autenticación";
+        setError(msg);
+      }
+    } finally {
       setBusy(false);
-      return;
     }
-    setBusy(false);
   };
 
   return (
@@ -147,8 +150,8 @@ export const AuthModal: React.FC<Props> = ({
         )}
 
         <p className="mt-4 text-[11px] text-slate-400 text-center">
-          Al iniciar sesión asociamos este CV de ejemplo a tu cuenta y
-          personalizamos nombre, email y foto.
+          Comienza con un CV de ejemplo ya cargado y personalízalo con tu
+          información.
         </p>
       </div>
     </div>

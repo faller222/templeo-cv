@@ -1,4 +1,5 @@
 import { signInWithCredential } from "firebase/auth";
+import { AuthCancelledError } from "./authErrors";
 import { getFirebaseAuth, getLinkedInProvider } from "./firebase";
 import { LINKEDIN_CLIENT_ID } from "./linkedinClientId";
 import { LINKEDIN_OAUTH_MSG } from "./linkedinOAuthMsg";
@@ -33,7 +34,7 @@ function waitForLinkedInCode(expectedState: string, popup: Window): Promise<stri
     const timer = window.setInterval(() => {
       if (popup.closed) {
         cleanup();
-        reject(new Error("Login de LinkedIn cancelado"));
+        reject(new AuthCancelledError());
       }
     }, 500);
 
@@ -43,7 +44,12 @@ function waitForLinkedInCode(expectedState: string, popup: Window): Promise<stri
       if (!data || data.type !== LINKEDIN_OAUTH_MSG) return;
       cleanup();
       if (data.error) {
-        reject(new Error(String(data.error)));
+        const err = String(data.error);
+        if (/access_denied|user_cancelled|user_canceled/i.test(err)) {
+          reject(new AuthCancelledError());
+        } else {
+          reject(new Error(err));
+        }
         return;
       }
       if (!data.code || data.state !== expectedState) {
