@@ -2,6 +2,7 @@ import React from "react";
 import { CvData, CvThemeSettings } from "../../types";
 import { Mail, Phone, MapPin, Calendar, FileCheck, UserCheck } from "lucide-react";
 import { CvPhoto } from "../CvPhoto";
+import { ProfileExtras } from "./shared/ProfileExtras";
 
 interface Props {
   data: CvData;
@@ -240,6 +241,8 @@ export const ClasicoV1Template: React.FC<Props> = ({ data, theme }) => {
             </div>
           </div>
         )}
+
+        <ProfileExtras data={data} accent={primaryColor} compact />
       </div>
     </div>
   );

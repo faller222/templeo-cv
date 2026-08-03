@@ -15,6 +15,7 @@ import {
   FolderGit2,
   Sparkles,
 } from "lucide-react";
+import { ProfileExtras } from "./shared/ProfileExtras";
 
 interface Props {
   data: CvData;
@@ -293,6 +294,8 @@ export const ModernTemplate: React.FC<Props> = ({ data, theme }) => {
               ))}
             </>
           )}
+
+          <ProfileExtras data={data} accent={primary} />
         </div>
       </div>
     </div>

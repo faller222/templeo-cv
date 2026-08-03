@@ -20,6 +20,7 @@ interface Props {
   setCvData: (data: CvData) => void;
   language: AppLanguage;
   onCreditsChange?: (n: number) => void;
+  onAtsScore?: (score: number) => void;
 }
 
 export const AIAssistantDrawer: React.FC<Props> = ({
@@ -29,6 +30,7 @@ export const AIAssistantDrawer: React.FC<Props> = ({
   setCvData,
   language,
   onCreditsChange,
+  onAtsScore,
 }) => {
   const [targetJob, setTargetJob] = useState("");
   const [loadingAts, setLoadingAts] = useState(false);
@@ -49,6 +51,7 @@ export const AIAssistantDrawer: React.FC<Props> = ({
         language,
       });
       setAtsResult(data);
+      onAtsScore?.(data.score);
       if (typeof (data as any).creditosIa === "number") {
         onCreditsChange?.((data as any).creditosIa);
       }

@@ -10,9 +10,10 @@ import {
   defaultThemeSettings,
 } from "../data/sampleCVs";
 import { normalizePhotoUrl } from "./photoUrl";
+import { normalizeCvData } from "./normalizeCvData";
 
 export function cloneCvData(data: CvData): CvData {
-  return structuredClone(data);
+  return structuredClone(normalizeCvData(data));
 }
 
 export function masterToInstanceData(master: MasterProfile): CvData {
@@ -26,6 +27,8 @@ export function createLocalCvInstance(params: {
   theme?: CvThemeSettings;
   sourceJobHint?: string;
   clonedFrom?: string | null;
+  basedOnProfileAt?: number;
+  atsScore?: number | null;
 }): CvInstance {
   const now = Date.now();
   const theme = params.theme ?? defaultThemeSettings;
@@ -35,9 +38,11 @@ export function createLocalCvInstance(params: {
     title: params.title,
     sourceJobHint: params.sourceJobHint,
     templateId: theme.templateId,
-    data: params.data ?? emptyCvData(),
+    data: normalizeCvData(params.data ?? emptyCvData()),
     theme,
     clonedFrom: params.clonedFrom ?? null,
+    basedOnProfileAt: params.basedOnProfileAt,
+    atsScore: params.atsScore ?? null,
     createdAt: now,
     updatedAt: now,
   };

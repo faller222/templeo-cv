@@ -61,7 +61,7 @@ export const FormEditor: React.FC<Props> = ({ data, onChange, language }) => {
     },
     {
       id: "summary",
-      title: language === "es" ? "Perfil Profesional (IA)" : "Professional Summary (AI)",
+      title: language === "es" ? "Resumen profesional (IA)" : "Professional Summary (AI)",
       icon: FileText,
       badge: "IA ✨",
       component: (

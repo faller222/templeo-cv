@@ -8,6 +8,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { getDb } from "./firebase";
 import type {
@@ -18,11 +19,16 @@ import type {
   UserEconomy,
 } from "../types";
 import { DEFAULT_ECONOMY } from "../types";
+import { normalizeCvData } from "./normalizeCvData";
 
 export async function loadUserDoc(uid: string): Promise<UserDoc | null> {
   const snap = await getDoc(doc(getDb(), "users", uid));
   if (!snap.exists()) return null;
-  return snap.data() as UserDoc;
+  const data = snap.data() as UserDoc;
+  return {
+    ...data,
+    profile: normalizeCvData(data.profile),
+  };
 }
 
 export async function ensureUserDoc(
@@ -46,16 +52,17 @@ export async function saveMasterProfile(uid: string, profile: MasterProfile) {
   const ref = doc(getDb(), "users", uid);
   const existing = await loadUserDoc(uid);
   const now = Date.now();
+  const normalized = normalizeCvData(profile);
   if (!existing) {
     await setDoc(ref, {
-      profile,
+      profile: normalized,
       economy: { ...DEFAULT_ECONOMY },
       createdAt: now,
       updatedAt: now,
     } satisfies UserDoc);
     return;
   }
-  await updateDoc(ref, { profile, updatedAt: now });
+  await updateDoc(ref, { profile: normalized, updatedAt: now });
 }
 
 export async function listCvInstances(uid: string): Promise<CvInstance[]> {
@@ -64,7 +71,19 @@ export async function listCvInstances(uid: string): Promise<CvInstance[]> {
     where("userId", "==", uid)
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<CvInstance, "id">) }));
+  return snap.docs.map((d) => {
+    const raw = d.data() as Omit<CvInstance, "id">;
+    return {
+      ...raw,
+      id: d.id,
+      data: normalizeCvData(raw.data),
+    };
+  });
+}
+
+export async function deleteCvInstance(id: string): Promise<void> {
+  if (!id || id.startsWith("local-")) return;
+  await deleteDoc(doc(getDb(), "cv_instances", id));
 }
 
 export async function saveCvInstance(
@@ -77,9 +96,11 @@ export async function saveCvInstance(
     title: instance.title,
     sourceJobHint: instance.sourceJobHint || "",
     templateId: instance.templateId,
-    data: instance.data,
+    data: normalizeCvData(instance.data),
     theme: instance.theme,
     clonedFrom: instance.clonedFrom || null,
+    basedOnProfileAt: instance.basedOnProfileAt ?? null,
+    atsScore: instance.atsScore ?? null,
     createdAt: instance.createdAt,
     updatedAt,
   };

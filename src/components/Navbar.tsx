@@ -2,15 +2,13 @@ import React from "react";
 import { CvData, CvThemeSettings, AppLanguage, CvTemplateId } from "../types";
 import type { AuthModalReason } from "./AuthModal";
 import {
-  FileText,
   Printer,
   Sparkles,
   Download,
   Upload,
   Palette,
   Layout,
-  FolderOpen,
-  Database,
+  ArrowLeft,
   CloudUpload,
 } from "lucide-react";
 
@@ -23,11 +21,10 @@ interface Props {
   setLanguage: (lang: AppLanguage) => void;
   onOpenAiDrawer: () => void;
   onOpenThemeModal: () => void;
-  onOpenCvManager: () => void;
   onRequireAuth?: (reason?: AuthModalReason) => boolean;
-  authSlot?: React.ReactNode;
-  onSaveMaster?: () => void;
+  onBackToCvs?: () => void;
   onSyncCloud?: () => void;
+  compact?: boolean;
 }
 
 export const Navbar: React.FC<Props> = ({
@@ -37,11 +34,10 @@ export const Navbar: React.FC<Props> = ({
   setTheme,
   onOpenAiDrawer,
   onOpenThemeModal,
-  onOpenCvManager,
   onRequireAuth,
-  authSlot,
-  onSaveMaster,
+  onBackToCvs,
   onSyncCloud,
+  compact,
 }) => {
   const gate = (reason: AuthModalReason = "generic") =>
     !onRequireAuth || onRequireAuth(reason);
@@ -274,26 +270,24 @@ export const Navbar: React.FC<Props> = ({
   };
 
   return (
-    <header className="shrink-0 z-30 bg-slate-900 text-white border-b border-slate-800 shadow-md print:hidden">
-      <div className="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        {/* Brand */}
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-blue-600 rounded-xl text-white shadow-sm">
-            <FileText className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-extrabold tracking-tight leading-none text-white">
-              Templeo<span className="text-blue-400">CV</span>
-            </h1>
-          </div>
-        </div>
-
-        {authSlot && <div className="order-last sm:order-none w-full sm:w-auto">{authSlot}</div>}
-
-        {/* Center Controls */}
+    <div
+      className={`shrink-0 z-20 print:hidden border-b border-slate-200 bg-white ${
+        compact ? "" : ""
+      }`}
+    >
+      <div className="px-3 sm:px-4 py-2 flex flex-wrap items-center gap-2 justify-between">
         <div className="flex flex-wrap items-center gap-2">
-          {/* Template Quick Selector */}
-          <div className="flex items-center gap-1.5 bg-slate-800 p-1 rounded-lg border border-slate-700 text-xs">
+          {onBackToCvs && (
+            <button
+              type="button"
+              onClick={onBackToCvs}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:bg-slate-100 cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Mis CVs
+            </button>
+          )}
+
+          <div className="flex items-center gap-1.5 bg-slate-50 p-1 rounded-lg border border-slate-200 text-xs">
             <Layout className="w-3.5 h-3.5 text-slate-400 ml-1" />
             <select
               value={theme.templateId}
@@ -309,92 +303,82 @@ export const Navbar: React.FC<Props> = ({
                   e.preventDefault();
                 }
               }}
-              className="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-slate-700 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
             >
               {templates.map((tpl) => (
-                <option key={tpl.id} value={tpl.id} className="bg-slate-900 text-white">
-                  Plantilla: {tpl.name}
+                <option key={tpl.id} value={tpl.id}>
+                  {tpl.name}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Theme customizer button */}
           <button
+            type="button"
             onClick={onOpenThemeModal}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 cursor-pointer transition-colors"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200 cursor-pointer"
           >
-            <Palette className="w-3.5 h-3.5 text-blue-400" /> Estilos & Colores
+            <Palette className="w-3.5 h-3.5 text-blue-600" /> Estilos
           </button>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={onOpenCvManager}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer"
-          >
-            <FolderOpen className="w-3.5 h-3.5 text-sky-400" /> Mis CVs
-          </button>
-
-          {onSaveMaster && (
-            <button
-              onClick={onSaveMaster}
-              title="Copiar instancia activa al Master Profile"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold border border-slate-700 cursor-pointer"
-            >
-              <Database className="w-3.5 h-3.5 text-amber-400" /> → Master
-            </button>
-          )}
-
           {onSyncCloud && (
             <button
+              type="button"
               onClick={onSyncCloud}
               title="Subir instancia a Firestore"
-              className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 cursor-pointer"
+              className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg border border-slate-200 cursor-pointer"
             >
               <CloudUpload className="w-4 h-4" />
             </button>
           )}
 
           <button
+            type="button"
             onClick={onOpenAiDrawer}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             ATS / IA
           </button>
 
           <button
+            type="button"
             onClick={handleExportPdf}
-            title="Exportar PDF con la plantilla actual (vista previa)"
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold shadow-sm cursor-pointer transition-all"
+            title="Exportar PDF"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             Exportar PDF
           </button>
 
-          {/* Export / Import JSON */}
           <button
+            type="button"
             onClick={handleExportJson}
-            title="Exportar archivo JSON"
-            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 cursor-pointer"
+            title="Exportar JSON"
+            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg border border-slate-200 cursor-pointer"
           >
             <Download className="w-4 h-4" />
           </button>
 
           <label
-            title="Importar archivo JSON"
-            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 cursor-pointer"
+            title="Importar JSON"
+            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg border border-slate-200 cursor-pointer"
             onClick={(e) => {
               if (!gate("edit")) e.preventDefault();
             }}
           >
             <Upload className="w-4 h-4" />
-            <input type="file" accept=".json" onChange={handleImportJson} className="hidden" />
+            <input
+              type="file"
+              accept=".json"
+              onChange={handleImportJson}
+              className="hidden"
+            />
           </label>
         </div>
       </div>
-    </header>
+    </div>
   );
 };
