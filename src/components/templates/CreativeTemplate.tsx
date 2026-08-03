@@ -1,5 +1,6 @@
 import React from "react";
 import { CvData, CvThemeSettings } from "../../types";
+import { CvPhoto } from "../CvPhoto";
 
 interface Props {
   data: CvData;
@@ -20,7 +21,7 @@ export const CreativeTemplate: React.FC<Props> = ({ data, theme }) => {
         >
           {personalInfo.showPhoto && personalInfo.photoUrl && (
             <div className="flex justify-center mb-4">
-              <img
+              <CvPhoto
                 src={personalInfo.photoUrl}
                 alt={personalInfo.fullName}
                 className="w-28 h-28 rounded-2xl border-4 border-white/20 object-cover shadow-md"

@@ -9,6 +9,7 @@ import {
   containsLegacyLenisePii,
   defaultThemeSettings,
 } from "../data/sampleCVs";
+import { normalizePhotoUrl } from "./photoUrl";
 
 export function cloneCvData(data: CvData): CvData {
   return structuredClone(data);
@@ -114,11 +115,14 @@ export function applyAuthIdentity(
 ): CvData {
   const next = cloneCvData(data);
   const hasPhoto = Boolean(identity.photoURL);
+  const photoUrl = identity.photoURL
+    ? normalizePhotoUrl(identity.photoURL)
+    : next.personalInfo.photoUrl;
   next.personalInfo = {
     ...next.personalInfo,
     fullName: identity.displayName || next.personalInfo.fullName,
     email: identity.email || next.personalInfo.email,
-    photoUrl: identity.photoURL || next.personalInfo.photoUrl,
+    photoUrl,
     showPhoto: hasPhoto || next.personalInfo.showPhoto,
   };
   return next;

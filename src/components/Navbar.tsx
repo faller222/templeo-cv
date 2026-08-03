@@ -290,7 +290,6 @@ export const Navbar: React.FC<Props> = ({
             <h1 className="text-base font-extrabold tracking-tight leading-none text-white">
               Templeo<span className="text-blue-400">CV</span>
             </h1>
-            <p className="text-[10px] text-slate-400">Módulo 1 · Master + instancias</p>
           </div>
         </div>
 

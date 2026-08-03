@@ -1,5 +1,6 @@
 import React from "react";
 import { CvData, CvThemeSettings } from "../../types";
+import { CvPhoto } from "../CvPhoto";
 import {
   Mail,
   Phone,
@@ -43,7 +44,7 @@ export const ModernTemplate: React.FC<Props> = ({ data, theme }) => {
       <header className="border-b border-slate-200 pb-6 mb-6">
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
           {personalInfo.showPhoto && personalInfo.photoUrl && (
-            <img
+            <CvPhoto
               src={personalInfo.photoUrl}
               alt={personalInfo.fullName}
               className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 shadow-sm shrink-0"

@@ -1,6 +1,7 @@
 import React from "react";
 import { CvData, CvThemeSettings } from "../../types";
 import { Mail, Phone, MapPin, Calendar, FileCheck, UserCheck } from "lucide-react";
+import { CvPhoto } from "../CvPhoto";
 
 interface Props {
   data: CvData;
@@ -22,7 +23,7 @@ export const ClasicoV1Template: React.FC<Props> = ({ data, theme }) => {
         {/* Profile Photo */}
         {personalInfo.showPhoto && personalInfo.photoUrl && (
           <div className="flex justify-center my-2">
-            <img
+            <CvPhoto
               src={personalInfo.photoUrl}
               alt={personalInfo.fullName}
               className="w-28 h-28 rounded-full object-cover border-4 border-white shadow-md"
