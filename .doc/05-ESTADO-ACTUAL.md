@@ -13,15 +13,19 @@
 - Créditos: consume en rutas IA + `POST /api/economy/claim-ad-token` (stub cooldown).
 - `normalize.css` cargado en `main.tsx`.
 - `firebase-tools` en devDependencies; proyecto `.firebaserc` → `templeo-cv`.
+- **Guest onboarding:** visitante recibe CV inventado random (pool Mateo/Sarah/Camila/Diego) en solo lectura. Editar/exportar/tema/IA/gestión abre `AuthModal` (Google + LinkedIn). Tras auth: si hay CVs remotos → ganan (cubre a Lenise y returning users); si no → claim del guest con `fullName`/`email`/`photoUrl` del provider + `saveCvInstance`.
+- **Lenise:** ya no está en samples/default del cliente. Su CV vive solo en Firestore bajo su UID; al login remotos-first.
 
 ## Pendiente operativo (vos)
 
 1. **Cuenta Firebase incorrecta en CLI:** `faller222@gmail.com` solo ve `agro-notas` / `agro-notas-staging`. El config apunta a `templeo-cv`, que **no aparece** en esa sesión. Hacé `npx firebase logout` + `npx firebase login` con la cuenta dueña de `templeo-cv`, o agregá este usuario al proyecto.
 2. Confirmar `VITE_FIREBASE_LINKEDIN_PROVIDER_ID` exacto en consola.
-3. Deploy rules: `npm run deploy:rules`
-4. Secret Gemini: `npx firebase functions:secrets:set GEMINI_API_KEY`
-5. Deploy functions: `npm run deploy:functions`
-6. Rotar Gemini key si `.env` llegó a un remote alguna vez.
+3. LinkedIn redirect URLs: `https://templeo-cv.web.app/auth/linkedin` (+ localhost).
+4. Secret LinkedIn: `npx firebase functions:secrets:set LINKEDIN_CLIENT_SECRET` (client id ya está en código).
+5. Deploy rules: `npm run deploy:rules`
+6. Secret Gemini: `npx firebase functions:secrets:set GEMINI_API_KEY`
+7. Deploy functions + hosting: `npm run deploy` (functions necesita `invoker: public`).
+8. Rotar Gemini key si `.env` llegó a un remote alguna vez.
 
 ## Deuda conocida
 

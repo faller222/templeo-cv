@@ -18,8 +18,16 @@ Documentación completa: [`.doc/00-INDICE.md`](.doc/00-INDICE.md)
 | `npm run build` | Build frontend + server |
 | `npm run lint` | `tsc --noEmit` |
 | `npx firebase emulators:start` | Emuladores Auth/Firestore/Functions |
-| `npx firebase deploy` | Deploy (requiere login) |
+| `npm run deploy:hosting` | Build Vite + deploy Firebase Hosting |
+| `npm run deploy` | Hosting + Functions + Firestore |
+| `npx firebase deploy` | Deploy manual |
 
 ## Auth
 
-Google + LinkedIn (OIDC). Ajustá `VITE_FIREBASE_LINKEDIN_PROVIDER_ID` al providerId exacto de la consola Firebase.
+Google + LinkedIn (OIDC). LinkedIn no usa el handler nativo de Firebase (bug de `client_secret`); el front abre OAuth, nuestra API hace el exchange y luego `signInWithCredential`.
+
+1. LinkedIn App → Authorized redirect URLs:
+   - `https://templeo-cv.web.app/auth/linkedin`
+   - `http://localhost:3000/auth/linkedin` (local)
+2. Secret Functions: `LINKEDIN_CLIENT_SECRET` (client id público ya está en el repo)
+3. Firebase OIDC provider sigue activo (`oidc.linkedin`) para validar el `id_token`

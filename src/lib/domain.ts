@@ -5,7 +5,10 @@ import {
   MasterProfile,
   emptyCvData,
 } from "../types";
-import { defaultThemeSettings } from "../data/sampleCVs";
+import {
+  containsLegacyLenisePii,
+  defaultThemeSettings,
+} from "../data/sampleCVs";
 
 export function cloneCvData(data: CvData): CvData {
   return structuredClone(data);
@@ -44,6 +47,7 @@ export function migrateLegacyLocalStorage(): {
   instances: CvInstance[];
   activeId: string;
   theme: CvThemeSettings;
+  isGuest: boolean;
 } | null {
   const raw = localStorage.getItem("cv_builder_data");
   if (!raw) return null;
@@ -58,6 +62,14 @@ export function migrateLegacyLocalStorage(): {
       } catch {
         /* keep default */
       }
+    }
+
+    localStorage.removeItem("cv_builder_data");
+    localStorage.removeItem("cv_builder_theme");
+
+    // No migrar PII real de Lenise al nuevo storage: el guest bootstrap lo reemplaza.
+    if (containsLegacyLenisePii(data)) {
+      return null;
     }
 
     const instance = createLocalCvInstance({
@@ -75,17 +87,39 @@ export function migrateLegacyLocalStorage(): {
         master: data,
         instances: [instance],
         activeId: instance.id,
+        theme,
+        isGuest: true,
       })
     );
-    localStorage.removeItem("cv_builder_data");
 
     return {
       master: data,
       instances: [instance],
       activeId: instance.id,
       theme,
+      isGuest: true,
     };
   } catch {
     return null;
   }
+}
+
+export function applyAuthIdentity(
+  data: CvData,
+  identity: {
+    displayName?: string | null;
+    email?: string | null;
+    photoURL?: string | null;
+  }
+): CvData {
+  const next = cloneCvData(data);
+  const hasPhoto = Boolean(identity.photoURL);
+  next.personalInfo = {
+    ...next.personalInfo,
+    fullName: identity.displayName || next.personalInfo.fullName,
+    email: identity.email || next.personalInfo.email,
+    photoUrl: identity.photoURL || next.personalInfo.photoUrl,
+    showPhoto: hasPhoto || next.personalInfo.showPhoto,
+  };
+  return next;
 }

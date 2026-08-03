@@ -4,6 +4,7 @@ functions/node_modules/
 
 # Build
 dist/
+dist-server/
 functions/lib/
 *.tsbuildinfo
 

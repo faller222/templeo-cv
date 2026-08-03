@@ -57,7 +57,9 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithLinkedIn() {
-  return signInWithPopup(getFirebaseAuth(), getLinkedInProvider());
+  // Firebase OIDC token exchange omits LinkedIn client_secret → use our API.
+  const { signInWithLinkedInManual } = await import("./linkedinAuth");
+  return signInWithLinkedInManual();
 }
 
 export async function logOut() {

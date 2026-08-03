@@ -1,9 +1,8 @@
 import { CvData, CvThemeSettings } from "../types";
-import leniseFoto from "../assets/images/foto.jpg";
 
 export const defaultThemeSettings: CvThemeSettings = {
   templateId: "clasico-v1",
-  primaryColor: "#2c3e50", // Dark Slate Blue for Clasico
+  primaryColor: "#2c3e50",
   fontFamily: "sans",
   fontSize: "md",
   spacing: "comfortable",
@@ -12,197 +11,17 @@ export const defaultThemeSettings: CvThemeSettings = {
   paperSize: "a4",
 };
 
-export const sampleCvLenise: CvData = {
-  personalInfo: {
-    fullName: "LENISE NOCETTI IBARGOYEN",
-    title: "Agente Comercial",
-    email: "lenylara1@hotmail.com",
-    phone: "094250999",
-    location: "Buceo, Montevideo, Uruguay",
-    website: "",
-    linkedin: "linkedin.com/in/lenise-nocetti",
-    github: "",
-    photoUrl: leniseFoto,
-    showPhoto: true,
-    birthDate: "01/04/2001 (23 años)",
-    age: 23,
-    documentation: [
-      "Libreta de conducir: CAT G2 - CAT A",
-      "Carné de salud: VIGENTE"
-    ],
-  },
-  summary:
-    "Estudiante de Odontología con experiencia en atención al cliente, ventas y recepción en el sector turístico y comercial. Experiencia en gestión de reservas, manejo de caja, control de stock y atención personalizada. Bilingüe español-inglés con habilidades en herramientas de Microsoft Office.",
-  experience: [
-    {
-      id: "exp-lenise-1",
-      title: "Recepcionista",
-      company: "OPTA Coliving",
-      location: "Punta Carretas, Montevideo",
-      startDate: "Abril 2025",
-      endDate: "Actualidad",
-      current: true,
-      bullets: [
-        "Atención completa al huésped y residente mediante check-in, check-out, asistencia personalizada y soporte en experiencias de coliving.",
-        "Provisión de información turística y orientación especializada para estadías prolongadas.",
-        "Gestión directa de reservas y coordinación con plataformas de alojamiento como Booking, Despegar y Expedia.",
-        "Manejo de caja, facturación, control de pagos y administración de servicios internos mediante app Lavomat.",
-        "Coordinación con equipos de limpieza y mantenimiento para garantizar altos estándares de servicio. Utilización de sistema hotelero Desbravador."
-      ],
-    },
-    {
-      id: "exp-lenise-2",
-      title: "Vendedora",
-      company: "FARMASHOP",
-      location: "Buceo, Montevideo",
-      startDate: "Agosto 2024",
-      endDate: "Octubre 2024",
-      current: false,
-      bullets: [
-        "Limpieza y organización completa del local.",
-        "Recepción y reposición estratégica de mercadería.",
-        "Elaboración eficiente de pedidos, gestión de reposición de productos y facturación precisa.",
-        "Coordinación de distribución de mercancías manteniendo altos estándares de orden y presentación."
-      ],
-    },
-    {
-      id: "exp-lenise-3",
-      title: "Auxiliar de ventas",
-      company: "FIT&FEET",
-      location: "Paseo del Este, Maldonado",
-      startDate: "2024",
-      endDate: "2024",
-      current: false,
-      bullets: [
-        "Asesoramiento al cliente y apoyo activo en ventas.",
-        "Control de stock y reposición periódica de productos."
-      ],
-    },
-    {
-      id: "exp-lenise-4",
-      title: "Recepcionista",
-      company: "HOSTEL DEL PUERTO",
-      location: "Punta del Este",
-      startDate: "Verano 2024",
-      endDate: "2024",
-      current: false,
-      bullets: [
-        "Atención personalizada al huésped mediante gestión eficiente de procesos de check-in y check-out.",
-        "Provisión de información turística especializada y asistencia completa durante la estadía.",
-        "Gestión de reservas y coordinación con plataformas de alojamiento.",
-        "Manejo de caja, facturación y coordinación con equipos de limpieza utilizando sistema hotelero Octopus."
-      ],
-    },
-    {
-      id: "exp-lenise-5",
-      title: "Recepcionista",
-      company: "HOTEL LA VISTA 32",
-      location: "Punta del Este",
-      startDate: "Verano 2023",
-      endDate: "2023",
-      current: false,
-      bullets: [
-        "Atención excepcional al cliente mediante gestión eficiente de reservas y procesos de check-in y check-out.",
-        "Manejo profesional de comunicaciones telefónicas y por correo electrónico.",
-        "Coordinación de servicios hoteleros y resolución de incidencias con sistema hotelero Octopus."
-      ],
-    },
-    {
-      id: "exp-lenise-6",
-      title: "Vendedora",
-      company: "BAZAR COSTA ESTE",
-      location: "La Barra, Maldonado",
-      startDate: "2018",
-      endDate: "2021",
-      current: false,
-      bullets: [
-        "Desarrollo de habilidades comerciales fundamentales mediante atención a clientes y gestión de ventas en entorno de bazar.",
-        "Adquisición de experiencia en manejo de inventario, atención personalizada y resolución de consultas."
-      ],
-    },
-  ],
-  education: [
-    {
-      id: "edu-lenise-1",
-      degree: "Carrera en Odontología",
-      fieldOfStudy: "Facultad de Odontología",
-      institution: "UNIVERSIDAD DE LA REPUBLICA (UDELAR)",
-      location: "Montevideo, Uruguay",
-      startDate: "2023",
-      endDate: "Actualidad",
-      current: true,
-      highlights: "Estado: En curso",
-    },
-    {
-      id: "edu-lenise-2",
-      degree: "Bachillerato tecnológico",
-      fieldOfStudy: "Educador en deporte y recreación",
-      institution: "UNIDAD TECNICA DE EDUCACION EN URUGUAY (UTU)",
-      location: "Uruguay",
-      startDate: "2019",
-      endDate: "2022",
-      current: false,
-      highlights: "Estado: Completado",
-    },
-  ],
-  skillCategories: [
-    {
-      id: "cat-lenise-1",
-      categoryName: "Software & Herramientas",
-      skills: ["Microsoft Excel", "Microsoft PowerPoint", "Sistema Hotelero Octopus", "Sistema Hotelero Desbravador", "App Lavomat"],
-    },
-    {
-      id: "cat-lenise-2",
-      categoryName: "Habilidades Comerciales & Recepción",
-      skills: ["Atención al Cliente", "Gestión de Reservas", "Booking / Expedia / Despegar", "Manejo de Caja & Facturación", "Control de Stock & Inventario", "Check-in & Check-out"],
-    },
-    {
-      id: "cat-lenise-3",
-      categoryName: "Idiomas",
-      skills: ["Español (Nativo)", "Inglés (Intermedio)"],
-    },
-  ],
-  references: [
-    {
-      id: "ref-lenise-1",
-      name: "Micaela Palacio",
-      role: "Encargada",
-      company: "Fit&feet",
-      phone: "099184092",
-    },
-    {
-      id: "ref-lenise-2",
-      name: "Débora Cairo",
-      role: "Encargada",
-      company: "Hostel del Puerto",
-      phone: "091075733",
-    },
-  ],
-  projects: [],
-  certifications: [
-    {
-      id: "cert-lenise-1",
-      title: "Libreta de Conducir CAT G2 - CAT A",
-      issuer: "Intendencia de Montevideo",
-      date: "Vigente",
-    },
-    {
-      id: "cert-lenise-2",
-      title: "Carné de Salud",
-      issuer: "Ministerio de Salud Pública",
-      date: "Vigente",
-    },
-  ],
-  customSections: [],
-  sectionOrder: [
-    "personal",
-    "summary",
-    "experience",
-    "education",
-    "skills",
-    "certifications",
-  ],
-};
+/** Detecta PII legacy de Lenise en estado local (migración fuera del cliente). */
+export function containsLegacyLenisePii(data: {
+  personalInfo?: { email?: string; fullName?: string };
+}): boolean {
+  const email = (data.personalInfo?.email || "").toLowerCase();
+  const name = (data.personalInfo?.fullName || "").toLowerCase();
+  return (
+    email.includes("lenylara1@hotmail.com") ||
+    name.includes("lenise nocetti")
+  );
+}
 
 export const sampleCvSpanish: CvData = {
   personalInfo: {
@@ -214,7 +33,8 @@ export const sampleCvSpanish: CvData = {
     website: "https://mateofernandez.dev",
     linkedin: "linkedin.com/in/mateofernandez-dev",
     github: "github.com/mfernandez-code",
-    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+    photoUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
     showPhoto: true,
   },
   summary:
@@ -281,17 +101,40 @@ export const sampleCvSpanish: CvData = {
     {
       id: "skill-1",
       categoryName: "Lenguajes & Frameworks",
-      skills: ["TypeScript", "JavaScript", "React.js", "Node.js", "Express", "Python", "Tailwind CSS", "Next.js"],
+      skills: [
+        "TypeScript",
+        "JavaScript",
+        "React.js",
+        "Node.js",
+        "Express",
+        "Python",
+        "Tailwind CSS",
+        "Next.js",
+      ],
     },
     {
       id: "skill-2",
       categoryName: "Cloud, DB & DevOps",
-      skills: ["PostgreSQL", "Firestore", "Docker", "Google Cloud Platform", "AWS", "CI/CD", "Redis", "Git"],
+      skills: [
+        "PostgreSQL",
+        "Firestore",
+        "Docker",
+        "Google Cloud Platform",
+        "AWS",
+        "CI/CD",
+        "Redis",
+        "Git",
+      ],
     },
     {
       id: "skill-3",
       categoryName: "Idiomas & Metodologías",
-      skills: ["Español (Nativo)", "Inglés (C1 Avanzado)", "Scrum/Agile", "Testing (Jest / Playwright)"],
+      skills: [
+        "Español (Nativo)",
+        "Inglés (C1 Avanzado)",
+        "Scrum/Agile",
+        "Testing (Jest / Playwright)",
+      ],
     },
   ],
   projects: [
@@ -337,9 +180,11 @@ export const sampleCvSpanish: CvData = {
         {
           id: "custom-item-1",
           title: "Ponente en JSConf LATAM 2023",
-          subtitle: "Conferencia: 'Escalando microfrontends con TypeScript sin perder el juicio'",
+          subtitle:
+            "Conferencia: 'Escalando microfrontends con TypeScript sin perder el juicio'",
           date: "Octubre 2023",
-          description: "Presentación técnica sobre micro-frontends ante una audiencia de 800+ desarrolladores en Bogotá.",
+          description:
+            "Presentación técnica sobre micro-frontends ante una audiencia de 800+ desarrolladores en Bogotá.",
         },
       ],
     },
@@ -366,7 +211,8 @@ export const sampleCvEnglish: CvData = {
     website: "https://sarahjenkins.pm",
     linkedin: "linkedin.com/in/sarahjenkins-pm",
     github: "github.com/sjenkins-pm",
-    photoUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
+    photoUrl:
+      "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=300",
     showPhoto: true,
   },
   summary:
@@ -420,12 +266,25 @@ export const sampleCvEnglish: CvData = {
     {
       id: "skill-1",
       categoryName: "Product Management",
-      skills: ["Product Roadmap", "User Research", "A/B Testing", "Agile / Scrum", "Jira & Figma", "SQL Analytics"],
+      skills: [
+        "Product Roadmap",
+        "User Research",
+        "A/B Testing",
+        "Agile / Scrum",
+        "Jira & Figma",
+        "SQL Analytics",
+      ],
     },
     {
       id: "skill-2",
       categoryName: "Strategy & Metrics",
-      skills: ["OKR Framework", "Growth Hacking", "Churn Reduction", "Customer Acquisition Cost", "Mixpanel / Amplitude"],
+      skills: [
+        "OKR Framework",
+        "Growth Hacking",
+        "Churn Reduction",
+        "Customer Acquisition Cost",
+        "Mixpanel / Amplitude",
+      ],
     },
     {
       id: "skill-3",
@@ -440,7 +299,8 @@ export const sampleCvEnglish: CvData = {
       role: "Creator",
       techStack: ["React", "Tailwind CSS", "Vite"],
       link: "https://saas-calculator-demo.com",
-      description: "Free interactive tool for founders to calculate CAC, LTV, NRR, and Runway projections.",
+      description:
+        "Free interactive tool for founders to calculate CAC, LTV, NRR, and Runway projections.",
     },
   ],
   certifications: [
@@ -468,3 +328,248 @@ export const sampleCvEnglish: CvData = {
     "certifications",
   ],
 };
+
+export const sampleCvCamila: CvData = {
+  personalInfo: {
+    fullName: "Camila Rojas Silva",
+    title: "Especialista en Marketing Digital & Contenidos",
+    email: "camila.rojas.demo@email.com",
+    phone: "+56 9 8765 4321",
+    location: "Santiago, Chile",
+    website: "https://camilarojas.demo",
+    linkedin: "linkedin.com/in/camila-rojas-demo",
+    github: "",
+    photoUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=300",
+    showPhoto: true,
+  },
+  summary:
+    "Especialista en marketing digital con 5 años impulsando crecimiento orgánico y paid en e-commerce y SaaS B2B. Experta en content strategy, SEO y performance en Meta Ads / Google Ads. Enfocada en métricas de negocio (CAC, ROAS, LTV) y storytelling de marca.",
+  experience: [
+    {
+      id: "exp-cam-1",
+      title: "Marketing Digital Lead",
+      company: "NubeRetail LatAm",
+      location: "Santiago, Chile",
+      startDate: "Feb 2022",
+      endDate: "Actualidad",
+      current: true,
+      bullets: [
+        "Diseñé y ejecuté el plan de contenidos que elevó el tráfico orgánico un 68% en 14 meses.",
+        "Optimicé campañas paid con ROAS promedio 4.2x y reducción de CAC del 22%.",
+        "Coordiné un equipo freelance de 4 creativos (copy, diseño, video) con calendario editorial semanal.",
+      ],
+    },
+    {
+      id: "exp-cam-2",
+      title: "Community & Content Manager",
+      company: "Agencia Norte Creativo",
+      location: "Valparaíso, Chile",
+      startDate: "Mar 2019",
+      endDate: "Ene 2022",
+      current: false,
+      bullets: [
+        "Gestioné redes de 12 marcas PyME con un crecimiento combinado de +120k seguidores.",
+        "Implementé reportes mensuales en Looker Studio alineados a KPIs comerciales del cliente.",
+      ],
+    },
+  ],
+  education: [
+    {
+      id: "edu-cam-1",
+      degree: "Licenciatura en Comunicación Social",
+      fieldOfStudy: "Marketing y Medios Digitales",
+      institution: "Universidad de Chile",
+      location: "Santiago, Chile",
+      startDate: "2014",
+      endDate: "2018",
+      current: false,
+      highlights: "Mención en periodismo digital.",
+    },
+  ],
+  skillCategories: [
+    {
+      id: "skill-cam-1",
+      categoryName: "Marketing & Ads",
+      skills: [
+        "SEO / SEM",
+        "Meta Ads",
+        "Google Ads",
+        "Email Marketing",
+        "Content Strategy",
+        "Copywriting",
+      ],
+    },
+    {
+      id: "skill-cam-2",
+      categoryName: "Herramientas",
+      skills: ["HubSpot", "Looker Studio", "Canva", "Notion", "GA4", "Figma (básico)"],
+    },
+    {
+      id: "skill-cam-3",
+      categoryName: "Idiomas",
+      skills: ["Español (Nativo)", "Inglés (B2)"],
+    },
+  ],
+  projects: [
+    {
+      id: "proj-cam-1",
+      title: "Playbook de lanzamientos e-commerce",
+      role: "Autora",
+      techStack: ["Notion", "GA4", "Meta Ads"],
+      link: "",
+      description:
+        "Guía interna reutilizable para lanzamientos de productos con checklist de creativos, presupuesto y métricas de las primeras 72 horas.",
+    },
+  ],
+  certifications: [
+    {
+      id: "cert-cam-1",
+      title: "Google Ads Search Certification",
+      issuer: "Google",
+      date: "2023",
+    },
+    {
+      id: "cert-cam-2",
+      title: "HubSpot Content Marketing",
+      issuer: "HubSpot Academy",
+      date: "2022",
+    },
+  ],
+  customSections: [],
+  sectionOrder: [
+    "personal",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+  ],
+};
+
+export const sampleCvDiego: CvData = {
+  personalInfo: {
+    fullName: "Diego Morales Peña",
+    title: "Diseñador UX/UI & Product Designer",
+    email: "diego.morales.demo@email.com",
+    phone: "+598 99 123 456",
+    location: "Montevideo, Uruguay",
+    website: "https://diegomorales.demo",
+    linkedin: "linkedin.com/in/diego-morales-demo",
+    github: "github.com/dmorales-demo",
+    photoUrl:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=300",
+    showPhoto: true,
+  },
+  summary:
+    "Product Designer con 6 años diseñando experiencias digitales para fintech y salud. Combino research, prototipado de alta fidelidad y design systems. Habituado a trabajar codo a codo con ingeniería en sprints ágiles y a medir impacto con métricas de usabilidad.",
+  experience: [
+    {
+      id: "exp-die-1",
+      title: "Senior Product Designer",
+      company: "BancaÁgil",
+      location: "Montevideo, Uruguay",
+      startDate: "Ago 2021",
+      endDate: "Actualidad",
+      current: true,
+      bullets: [
+        "Rediseñé el flujo de onboarding KYC, reduciendo el abandono en un 31%.",
+        "Construí y mantuve el design system de la app (120+ componentes) en Figma + tokens compartidos con front.",
+        "Facilité workshops de discovery con compliance, legal y producto para features regulatorias.",
+      ],
+    },
+    {
+      id: "exp-die-2",
+      title: "UX/UI Designer",
+      company: "HealthPath LatAm",
+      location: "Remoto",
+      startDate: "Ene 2018",
+      endDate: "Jul 2021",
+      current: false,
+      bullets: [
+        "Diseñé el portal de pacientes (web + responsive) usado por 40k usuarios mensuales.",
+        "Conduje tests de usabilidad moderados y unmoderados; prioricé backlog con severity ratings.",
+      ],
+    },
+  ],
+  education: [
+    {
+      id: "edu-die-1",
+      degree: "Licenciatura en Diseño Industrial",
+      fieldOfStudy: "Diseño de Interacción",
+      institution: "Universidad ORT Uruguay",
+      location: "Montevideo, Uruguay",
+      startDate: "2012",
+      endDate: "2017",
+      current: false,
+    },
+  ],
+  skillCategories: [
+    {
+      id: "skill-die-1",
+      categoryName: "Diseño & Research",
+      skills: [
+        "Figma",
+        "Design Systems",
+        "User Interviews",
+        "Usability Testing",
+        "Prototyping",
+        "Accessibility (WCAG)",
+      ],
+    },
+    {
+      id: "skill-die-2",
+      categoryName: "Colaboración",
+      skills: ["Agile / Scrum", "Jira", "FigJam", "Storybook (colab)", "HTML/CSS básico"],
+    },
+    {
+      id: "skill-die-3",
+      categoryName: "Idiomas",
+      skills: ["Español (Nativo)", "Inglés (C1)"],
+    },
+  ],
+  projects: [
+    {
+      id: "proj-die-1",
+      title: "Kit de onboarding bancario open-source",
+      role: "Diseñador principal",
+      techStack: ["Figma", "Tokens", "Storybook"],
+      link: "",
+      description:
+        "Biblioteca de flujos y componentes para onboarding financiero reutilizable en 3 productos internos.",
+    },
+  ],
+  certifications: [
+    {
+      id: "cert-die-1",
+      title: "Google UX Design Certificate",
+      issuer: "Coursera / Google",
+      date: "2021",
+    },
+  ],
+  customSections: [],
+  sectionOrder: [
+    "personal",
+    "summary",
+    "experience",
+    "education",
+    "skills",
+    "projects",
+    "certifications",
+  ],
+};
+
+export type GuestSampleId = "mateo" | "sarah" | "camila" | "diego";
+
+export const GUEST_SAMPLE_POOL: { id: GuestSampleId; data: CvData; language: "es" | "en"; templateId: CvThemeSettings["templateId"] }[] = [
+  { id: "mateo", data: sampleCvSpanish, language: "es", templateId: "modern" },
+  { id: "sarah", data: sampleCvEnglish, language: "en", templateId: "executive" },
+  { id: "camila", data: sampleCvCamila, language: "es", templateId: "elegant" },
+  { id: "diego", data: sampleCvDiego, language: "es", templateId: "creative" },
+];
+
+export function pickRandomGuestCv(): (typeof GUEST_SAMPLE_POOL)[number] {
+  const idx = Math.floor(Math.random() * GUEST_SAMPLE_POOL.length);
+  return GUEST_SAMPLE_POOL[idx];
+}

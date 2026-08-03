@@ -1,7 +1,13 @@
 import React from "react";
 import { CvData, CvThemeSettings, AppLanguage, CvTemplateId } from "../types";
-import { sampleCvLenise, sampleCvSpanish, sampleCvEnglish } from "../data/sampleCVs";
+import {
+  sampleCvSpanish,
+  sampleCvEnglish,
+  sampleCvCamila,
+  sampleCvDiego,
+} from "../data/sampleCVs";
 import { downloadCvPdf } from "./pdf/CvPdfDocument";
+import type { AuthModalReason } from "./AuthModal";
 import {
   FileText,
   Printer,
@@ -27,6 +33,7 @@ interface Props {
   onOpenAiDrawer: () => void;
   onOpenThemeModal: () => void;
   onOpenCvManager: () => void;
+  onRequireAuth?: (reason?: AuthModalReason) => boolean;
   authSlot?: React.ReactNode;
   onSaveMaster?: () => void;
   onSyncCloud?: () => void;
@@ -42,10 +49,13 @@ export const Navbar: React.FC<Props> = ({
   onOpenAiDrawer,
   onOpenThemeModal,
   onOpenCvManager,
+  onRequireAuth,
   authSlot,
   onSaveMaster,
   onSyncCloud,
 }) => {
+  const gate = (reason: AuthModalReason = "generic") =>
+    !onRequireAuth || onRequireAuth(reason);
   const templates: { id: CvTemplateId; name: string }[] = [
     { id: "clasico-v1", name: "Clásico (2 Col)" },
     { id: "markdown-template-v1", name: "ATS Corporativo" },
@@ -232,26 +242,36 @@ export const Navbar: React.FC<Props> = ({
   };
 
   const handleExportPdf = async () => {
+    if (!gate("export")) return;
     try {
       await downloadCvPdf(cvData, theme);
     } catch (err) {
       console.error(err);
-      // Fallback legacy print window
       handleOpenPrintWindow();
     }
   };
 
   const handleExportJson = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cvData, null, 2));
+    if (!gate("export")) return;
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(cvData, null, 2));
     const downloadAnchor = document.createElement("a");
     downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `CV_${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "mi_cv"}.json`);
+    downloadAnchor.setAttribute(
+      "download",
+      `CV_${cvData.personalInfo.fullName.replace(/\s+/g, "_") || "mi_cv"}.json`
+    );
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
     downloadAnchor.remove();
   };
 
   const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!gate("edit")) {
+      e.target.value = "";
+      return;
+    }
     const fileReader = new FileReader();
     if (e.target.files && e.target.files[0]) {
       fileReader.readAsText(e.target.files[0], "UTF-8");
@@ -261,30 +281,38 @@ export const Navbar: React.FC<Props> = ({
           if (parsed && parsed.personalInfo) {
             setCvData(parsed);
           }
-        } catch (err) {
+        } catch {
           alert("Archivo JSON no válido.");
         }
       };
     }
   };
 
-  const handleLoadSample = (candidate: "lenise" | "es" | "en") => {
-    if (candidate === "lenise") {
-      setCvData(sampleCvLenise);
-      setLanguage("es");
-      setTheme((t) => ({ ...t, templateId: "clasico-v1" }));
-    } else if (candidate === "es") {
+  const handleLoadSample = (
+    candidate: "mateo" | "sarah" | "camila" | "diego"
+  ) => {
+    if (!gate("edit")) return;
+    if (candidate === "mateo") {
       setCvData(sampleCvSpanish);
       setLanguage("es");
       setTheme((t) => ({ ...t, templateId: "modern" }));
-    } else {
+    } else if (candidate === "sarah") {
       setCvData(sampleCvEnglish);
       setLanguage("en");
       setTheme((t) => ({ ...t, templateId: "executive" }));
+    } else if (candidate === "camila") {
+      setCvData(sampleCvCamila);
+      setLanguage("es");
+      setTheme((t) => ({ ...t, templateId: "elegant" }));
+    } else {
+      setCvData(sampleCvDiego);
+      setLanguage("es");
+      setTheme((t) => ({ ...t, templateId: "creative" }));
     }
   };
 
   const handleResetBlank = () => {
+    if (!gate("edit")) return;
     if (confirm("¿Seguro que deseas reiniciar y crear un CV en blanco?")) {
       setCvData({
         personalInfo: {
@@ -302,11 +330,19 @@ export const Navbar: React.FC<Props> = ({
         summary: "",
         experience: [],
         education: [],
-        skillCategories: [{ id: "cat-1", categoryName: "Habilidades", skills: [] }],
+        skillCategories: [
+          { id: "cat-1", categoryName: "Habilidades", skills: [] },
+        ],
         projects: [],
         certifications: [],
         customSections: [],
-        sectionOrder: ["personal", "summary", "experience", "education", "skills"],
+        sectionOrder: [
+          "personal",
+          "summary",
+          "experience",
+          "education",
+          "skills",
+        ],
       });
     }
   };
@@ -336,7 +372,18 @@ export const Navbar: React.FC<Props> = ({
             <Layout className="w-3.5 h-3.5 text-slate-400 ml-1" />
             <select
               value={theme.templateId}
-              onChange={(e) => setTheme((t) => ({ ...t, templateId: e.target.value as CvTemplateId }))}
+              onChange={(e) => {
+                if (!gate("theme")) return;
+                setTheme((t) => ({
+                  ...t,
+                  templateId: e.target.value as CvTemplateId,
+                }));
+              }}
+              onMouseDown={(e) => {
+                if (onRequireAuth && !onRequireAuth("theme")) {
+                  e.preventDefault();
+                }
+              }}
               className="bg-transparent text-slate-200 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
             >
               {templates.map((tpl) => (
@@ -364,23 +411,28 @@ export const Navbar: React.FC<Props> = ({
 
             <div className="absolute right-0 top-full mt-1 w-64 bg-slate-800 border border-slate-700 rounded-xl shadow-xl hidden group-hover:block p-1.5 z-50">
               <button
-                onClick={() => handleLoadSample("lenise")}
-                className="w-full text-left px-3 py-2 text-xs text-white hover:bg-slate-700 rounded-lg font-bold flex items-center justify-between"
-              >
-                <span>🇺🇾 Lenise Nocetti (Agente Comercial)</span>
-                <span className="text-[10px] bg-emerald-900/60 text-emerald-300 px-1.5 py-0.5 rounded">Actual</span>
-              </button>
-              <button
-                onClick={() => handleLoadSample("es")}
+                onClick={() => handleLoadSample("mateo")}
                 className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
               >
-                🇦🇷 Mateo Fernández (Dev Senior)
+                Mateo Fernández (Dev Senior)
               </button>
               <button
-                onClick={() => handleLoadSample("en")}
+                onClick={() => handleLoadSample("sarah")}
                 className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
               >
-                🇺🇸 Sarah Jenkins (Product Manager)
+                Sarah Jenkins (Product Manager)
+              </button>
+              <button
+                onClick={() => handleLoadSample("camila")}
+                className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
+              >
+                Camila Rojas (Marketing)
+              </button>
+              <button
+                onClick={() => handleLoadSample("diego")}
+                className="w-full text-left px-3 py-2 text-xs text-slate-200 hover:bg-slate-700 rounded-lg"
+              >
+                Diego Morales (UX/UI)
               </button>
               <div className="border-t border-slate-700 my-1" />
               <button
@@ -451,6 +503,9 @@ export const Navbar: React.FC<Props> = ({
           <label
             title="Importar archivo JSON"
             className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg border border-slate-700 cursor-pointer"
+            onClick={(e) => {
+              if (!gate("edit")) e.preventDefault();
+            }}
           >
             <Upload className="w-4 h-4" />
             <input type="file" accept=".json" onChange={handleImportJson} className="hidden" />
